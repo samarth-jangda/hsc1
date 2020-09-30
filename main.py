@@ -7,7 +7,17 @@ from keyboard import is_pressed
 from flask import Flask, render_template
 
 app = Flask(__name__)
-
+app.config["Secret_Key"] = "6a79852e71abd3dc5e4d#"
+#megrun_with_ngrok(app)
+app.debug = True
+app.secret_key = "AsdHahD12@!#@3@#@#554"
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSORD'] = ''
+app.config["MYSQL_DB"] = 'register'
+app.config["SQLALCHEMY_DATABASE_URL"] = "http://localhost/phpmyadmin/tbl_structure.php?db=register&table=register"
+app.config["MYSQL CURSORCLASS"] = "DictCursor"
+mysql = MySQL(app)
 
 @app.route("/")
 def index():
@@ -35,6 +45,48 @@ def markAttendance(name):
             dtString = now.strftime('%H:%M:%S')
             d = date.today()
             f.writelines(f'\n{name},{d},{dtString}')
+#This is the database code yahan se data db main jaega
+
+@app.route("/", methods=(["GET", "POST"]))
+def index():
+    # form = loginform()
+    try:
+        con = mysql.connection.cursor()
+        print("Connected to database")
+    except Exception as e:
+
+        sys.exit(e)
+    # cur = con.cursor()
+    con.execute("SELECT * FROM logins")
+    data = DataFrame(data=con.fetchall())
+
+    if request.method == "POST":
+
+        Name = request.form['Name']
+        Password = request.form["Password"]
+
+        cur = mysql.connection.cursor()
+
+        if username in list(data[0]):
+            if password not in list(data[1]):
+                flash("You need to log in")
+                return render_template("login.html")
+
+                flash('User already exist')
+                return render_template('login.html')
+                cur.execute("INSERT INTO logins(username,password,c_password) VALUES (%s,%s,%s)",
+                            (username, password, c_password))
+                mysql.connection.commit()
+                cur.close()
+        else:
+            flash("Both evoc-id does no match")
+            return render_template("login.html", output_data=data)
+            # if cur.username != username:
+            # flash("you writtern wrong evoc_id")
+
+            flash("Submission-Successful")
+            return render_template("login.html")
+    return render_template("login.html")
 
 
 path = 'database_images'
