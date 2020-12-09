@@ -86,4 +86,4 @@ def detect_faces():
 if __name__ == '__main__':
     # detect_faces()
 
-    app.run()
+    app.run(debug=True)
